@@ -1,0 +1,21 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Environment
+/.env
+
+# Build output (compiled Tailwind) — keep committed? No, build locally.
+/public/assets/css/app.css
+
+# Tooling caches
+/.phpunit.cache/
+/.phpunit.result.cache
+composer.phar
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+/.idea/
+/.vscode/
