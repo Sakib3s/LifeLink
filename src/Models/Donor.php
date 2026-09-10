@@ -56,4 +56,36 @@ final class Donor extends Model
     {
         self::updateById($donorId, ['availability_status' => $status]);
     }
+
+    // ── Verification (admin) ─────────────────────────────────────
+
+    /** @return array<int, array<string, mixed>> unverified donors + their user account */
+    public static function pendingVerification(): array
+    {
+        return Database::all(
+            'SELECT d.*, u.name, u.email, u.phone, u.created_at AS registered_at
+               FROM donors d JOIN users u ON u.id = d.user_id
+              WHERE d.is_verified = 0
+              ORDER BY u.created_at ASC',
+        );
+    }
+
+    public static function countPendingVerification(): int
+    {
+        return (int) Database::scalar('SELECT COUNT(*) FROM donors WHERE is_verified = 0');
+    }
+
+    public static function markVerified(int $donorId, int $adminUserId): void
+    {
+        self::updateById($donorId, [
+            'is_verified' => 1,
+            'verified_by' => $adminUserId,
+            'verified_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    public static function clearVerification(int $donorId): void
+    {
+        self::updateById($donorId, ['is_verified' => 0, 'verified_by' => null, 'verified_at' => null]);
+    }
 }

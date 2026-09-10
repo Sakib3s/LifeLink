@@ -49,9 +49,9 @@
     @apply inline-flex items-center justify-center gap-2 rounded-md border text-sm font-medium
            transition-colors disabled:cursor-not-allowed disabled:opacity-60 select-none;
   }
-  .btn-sm { @apply px-2.5 py-1.5 text-xs; }
-  .btn-md { @apply px-3.5 py-2; }
-  .btn-lg { @apply px-5 py-2.5 text-base; }
+  .btn-sm { @apply px-3.5 py-2 text-xs; }
+  .btn-md { @apply px-5 py-2.5 text-sm; }
+  .btn-lg { @apply px-7 py-3.5 text-base; }
 
   .btn-primary   { @apply border-brand-600 bg-brand-600 text-white hover:bg-brand-700 hover:border-brand-700; }
   .btn-secondary { @apply border-gray-300 bg-white text-gray-800 hover:bg-gray-100; }

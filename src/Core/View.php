@@ -81,22 +81,24 @@ final class View
     }
 
     /**
-     * @param array<string, mixed> $data
+     * Render a template file with $data extracted as local variables.
+     *
+     * The internal locals are deliberately namespaced with a __lifelink_
+     * prefix so a view-data key like "data" or "file" does not collide with
+     * them (extract(EXTR_SKIP) would otherwise silently drop such a key).
+     *
+     * @param array<string, mixed> $__lifelink_data
      */
-    private function capture(string $file, array $data): string
+    private function capture(string $__lifelink_file, array $__lifelink_data): string
     {
-        if (!is_file($file)) {
-            throw new RuntimeException("View not found: {$file}");
+        if (!is_file($__lifelink_file)) {
+            throw new RuntimeException("View not found: {$__lifelink_file}");
         }
-
-        $render = function () use ($file, $data): void {
-            extract($data, EXTR_SKIP);
-            require $file;
-        };
 
         ob_start();
         try {
-            $render();
+            extract($__lifelink_data, EXTR_SKIP);
+            require $__lifelink_file;
         } catch (\Throwable $e) {
             ob_end_clean();
             throw $e;

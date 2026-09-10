@@ -1,42 +1,53 @@
 <?php
-/** @var array $user */
+/**
+ * @var array $user
+ * @var array $usersByRole
+ * @var int   $totalUsers
+ * @var int   $pendingDonors
+ * @var int   $pendingBanks
+ * @var array $requestsByStatus
+ * @var int   $openCritical
+ */
 $this->layout('layouts/dashboard', [
     'title'        => $title,
     'user'         => $user,
     'pageTitle'    => $pageTitle,
-    'pageSubtitle' => 'Operations overview.',
+    'pageSubtitle' => $pageSubtitle ?? 'Operations overview.',
 ]);
+$pendingTotal = $pendingDonors + $pendingBanks;
 ?>
 
-<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    <a href="<?= url('/admin/verifications') ?>" class="card card-pad hover:border-gray-300">
-        <span class="text-gray-400"><?= icon('shield-check') ?></span>
-        <h2 class="mt-3 text-base font-semibold text-gray-900">Verification queue</h2>
-        <p class="mt-1 text-sm text-gray-600">Review pending donors and blood banks.</p>
-    </a>
-    <a href="<?= url('/admin/users') ?>" class="card card-pad hover:border-gray-300">
-        <span class="text-gray-400"><?= icon('users') ?></span>
-        <h2 class="mt-3 text-base font-semibold text-gray-900">Users</h2>
-        <p class="mt-1 text-sm text-gray-600">Manage accounts and suspensions.</p>
-    </a>
-    <a href="<?= url('/admin/requests') ?>" class="card card-pad hover:border-gray-300">
-        <span class="text-gray-400"><?= icon('clipboard-list') ?></span>
-        <h2 class="mt-3 text-base font-semibold text-gray-900">Requests monitor</h2>
-        <p class="mt-1 text-sm text-gray-600">All blood requests and their status.</p>
-    </a>
-    <a href="<?= url('/admin/reports') ?>" class="card card-pad hover:border-gray-300">
-        <span class="text-gray-400"><?= icon('chart-bar') ?></span>
-        <h2 class="mt-3 text-base font-semibold text-gray-900">Reports</h2>
-        <p class="mt-1 text-sm text-gray-600">Aggregates and CSV export.</p>
-    </a>
-    <a href="<?= url('/admin/settings') ?>" class="card card-pad hover:border-gray-300">
-        <span class="text-gray-400"><?= icon('settings') ?></span>
-        <h2 class="mt-3 text-base font-semibold text-gray-900">System settings</h2>
-        <p class="mt-1 text-sm text-gray-600">Matching radius, urgency thresholds.</p>
-    </a>
-    <a href="<?= url('/admin/audit') ?>" class="card card-pad hover:border-gray-300">
-        <span class="text-gray-400"><?= icon('history') ?></span>
-        <h2 class="mt-3 text-base font-semibold text-gray-900">Audit log</h2>
-        <p class="mt-1 text-sm text-gray-600">Every verify, reject and suspend action.</p>
-    </a>
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <?= $this->partial('partials/stat', ['label' => 'Total users', 'value' => $totalUsers, 'icon' => 'users', 'sub' => ($usersByRole['donor'] ?? 0) . ' donors · ' . ($usersByRole['patient'] ?? 0) . ' patients']) ?>
+    <?= $this->partial('partials/stat', ['label' => 'Pending verification', 'value' => $pendingTotal, 'icon' => 'shield-check', 'href' => url('/admin/verifications'), 'sub' => $pendingDonors . ' donors · ' . $pendingBanks . ' banks']) ?>
+    <?= $this->partial('partials/stat', ['label' => 'Open requests', 'value' => $requestsByStatus['open'] ?? 0, 'icon' => 'radar', 'href' => url('/admin/requests?status=open')]) ?>
+    <?= $this->partial('partials/stat', ['label' => 'Open & critical', 'value' => $openCritical, 'icon' => 'alert-triangle', 'href' => url('/admin/requests?status=open&urgency=critical')]) ?>
+</div>
+
+<div class="mt-6 grid gap-4 lg:grid-cols-2">
+    <div class="card">
+        <div class="card-header"><span class="card-title">Requests by status</span></div>
+        <div class="card-pad">
+            <dl class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <?php foreach ($requestsByStatus as $status => $count): ?>
+                    <div class="rounded-md border border-gray-200 p-3">
+                        <dt class="mb-1"><?= $this->partial('partials/status-badge', ['status' => $status]) ?></dt>
+                        <dd class="text-xl font-semibold text-gray-900"><?= (int) $count ?></dd>
+                    </div>
+                <?php endforeach; ?>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title">Quick links</span></div>
+        <div class="card-pad grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <?= $this->partial('partials/button', ['label' => 'Verification queue', 'href' => url('/admin/verifications'), 'variant' => 'secondary', 'icon' => 'shield-check', 'class' => 'justify-start']) ?>
+            <?= $this->partial('partials/button', ['label' => 'Users', 'href' => url('/admin/users'), 'variant' => 'secondary', 'icon' => 'users', 'class' => 'justify-start']) ?>
+            <?= $this->partial('partials/button', ['label' => 'All requests', 'href' => url('/admin/requests'), 'variant' => 'secondary', 'icon' => 'clipboard-list', 'class' => 'justify-start']) ?>
+            <?= $this->partial('partials/button', ['label' => 'Reports', 'href' => url('/admin/reports'), 'variant' => 'secondary', 'icon' => 'chart-bar', 'class' => 'justify-start']) ?>
+            <?= $this->partial('partials/button', ['label' => 'System settings', 'href' => url('/admin/settings'), 'variant' => 'secondary', 'icon' => 'settings', 'class' => 'justify-start']) ?>
+            <?= $this->partial('partials/button', ['label' => 'Audit log', 'href' => url('/admin/audit'), 'variant' => 'secondary', 'icon' => 'history', 'class' => 'justify-start']) ?>
+        </div>
+    </div>
 </div>

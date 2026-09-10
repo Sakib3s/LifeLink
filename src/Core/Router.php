@@ -110,8 +110,8 @@ final class Router
             foreach ($route['middleware'] as $middlewareSpec) {
                 // Spec is "Class" or "Class:arg1,arg2" (args passed to the constructor).
                 [$class, $argString] = array_pad(explode(':', $middlewareSpec, 2), 2, null);
-                $args = $argString === null ? [] : explode(',', $argString);
-                (new $class(...$args))->handle($request);
+                $middlewareArgs = $argString === null ? [] : explode(',', $argString);
+                (new $class(...$middlewareArgs))->handle($request);
             }
 
             $this->invoke($route['handler'], $args, $request);

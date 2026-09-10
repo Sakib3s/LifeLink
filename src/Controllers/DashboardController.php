@@ -24,7 +24,7 @@ final class DashboardController extends Controller
             'donor'      => $this->donor($user),
             'patient'    => $this->patient($user),
             'blood_bank' => $this->bloodBank($user),
-            'admin'      => $this->admin($user),
+            'admin'      => $this->redirect('/admin'),
             default      => $this->redirect('/'),
         };
     }
@@ -65,16 +65,6 @@ final class DashboardController extends Controller
             'user'      => $user,
             'pageTitle' => 'Welcome, ' . $user['name'],
             'bank'      => $bank,
-        ]);
-    }
-
-    /** @param array<string,mixed> $user */
-    private function admin(array $user): never
-    {
-        $this->view('admin/dashboard', [
-            'title'     => 'Admin dashboard — LifeLink',
-            'user'      => $user,
-            'pageTitle' => 'Admin dashboard',
         ]);
     }
 }
