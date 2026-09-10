@@ -74,9 +74,9 @@ abstract class Controller
             ], 422);
         }
 
-        Session::set('_errors', $validator->errors());
-        Session::set('_old', $this->safeOld());
-        $this->back();
+        Session::flashInput($validator->errors(), $this->safeOld());
+        // With no Referer, fall back to the GET form at the same path.
+        $this->back($this->request->path());
     }
 
     /** Old input minus sensitive fields. @return array<string, mixed> */

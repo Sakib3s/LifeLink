@@ -6,7 +6,10 @@
  * @var string $slot
  * @var string $title
  */
-$this->layout('layouts/base', ['title' => $title ?? config('app.name')]);
+$this->layout('layouts/base', [
+    'title'       => $title ?? config('app.name'),
+    'pageScripts' => $pageScripts ?? [],
+]);
 ?>
 <div class="flex min-h-screen flex-col">
     <?= $this->partial('partials/site-header') ?>

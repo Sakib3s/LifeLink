@@ -84,12 +84,31 @@ final class Session
     }
 
     /**
-     * Promote this-request flashes written during the previous request into
-     * the readable bucket, and drop anything older.
+     * Stash validation errors + submitted input for the NEXT request only
+     * (read back via the errors()/old() helpers after a redirect).
+     *
+     * @param array<string, string> $errors
+     * @param array<string, mixed>  $old
+     */
+    public static function flashInput(array $errors, array $old = []): void
+    {
+        $_SESSION['_errors_new'] = $errors;
+        $_SESSION['_old_new'] = $old;
+    }
+
+    /**
+     * Promote flashes written during the previous request into the readable
+     * bucket, and drop anything older. Covers flash messages and the
+     * errors/old-input pair.
      */
     private static function ageFlash(): void
     {
         $_SESSION['_flash'] = $_SESSION['_flash_new'] ?? [];
         $_SESSION['_flash_new'] = [];
+
+        $_SESSION['_errors'] = $_SESSION['_errors_new'] ?? [];
+        $_SESSION['_old'] = $_SESSION['_old_new'] ?? [];
+        $_SESSION['_errors_new'] = [];
+        $_SESSION['_old_new'] = [];
     }
 }

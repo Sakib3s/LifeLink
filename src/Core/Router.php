@@ -107,8 +107,11 @@ final class Router
             array_shift($matches);
             $args = array_map('rawurldecode', $matches);
 
-            foreach ($route['middleware'] as $middlewareClass) {
-                (new $middlewareClass())->handle($request);
+            foreach ($route['middleware'] as $middlewareSpec) {
+                // Spec is "Class" or "Class:arg1,arg2" (args passed to the constructor).
+                [$class, $argString] = array_pad(explode(':', $middlewareSpec, 2), 2, null);
+                $args = $argString === null ? [] : explode(',', $argString);
+                (new $class(...$args))->handle($request);
             }
 
             $this->invoke($route['handler'], $args, $request);

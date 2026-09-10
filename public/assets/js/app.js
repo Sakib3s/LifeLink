@@ -17,6 +17,23 @@
       });
     }, 6000);
 
+    // Mobile sidebar slide-over
+    var $sidebar = $('[data-sidebar]');
+    var $overlay = $('[data-sidebar-overlay]');
+    function openSidebar() {
+      $sidebar.removeClass('-translate-x-full');
+      $overlay.removeClass('hidden');
+    }
+    function closeSidebar() {
+      $sidebar.addClass('-translate-x-full');
+      $overlay.addClass('hidden');
+    }
+    $(document).on('click', '[data-sidebar-toggle]', function (e) {
+      e.stopPropagation();
+      if ($sidebar.hasClass('-translate-x-full')) { openSidebar(); } else { closeSidebar(); }
+    });
+    $(document).on('click', '[data-sidebar-overlay]', closeSidebar);
+
     // Generic dropdown toggling: [data-dropdown-toggle="#id"]
     $(document).on('click', '[data-dropdown-toggle]', function (e) {
       e.stopPropagation();
