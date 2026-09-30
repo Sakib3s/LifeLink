@@ -14,7 +14,28 @@ use App\Core\Response;
 use App\Core\Router;
 use App\Core\View;
 
-require dirname(__DIR__) . '/src/bootstrap.php';
+// Locate the application root (the folder holding src/, views/, routes/,
+// vendor/ and .env). Locally that is one level above public/. On shared
+// hosting the app folder sits OUTSIDE the web root — e.g. ~/lifelink-app
+// next to ~/public_html — so a few known layouts are tried in order.
+$appRoot = null;
+foreach ([
+    dirname(__DIR__),                       // dev / standard: public/ inside the project
+    dirname(__DIR__, 3) . '/lifelink-app',  // public_html/rtm/lifelink → ~/lifelink-app
+    dirname(__DIR__, 2) . '/lifelink-app',  // public_html/lifelink     → ~/lifelink-app
+    __DIR__ . '/../lifelink-app',           // sibling of the web folder
+] as $candidate) {
+    if (is_file($candidate . '/src/bootstrap.php')) {
+        $appRoot = $candidate;
+        break;
+    }
+}
+if ($appRoot === null) {
+    http_response_code(500);
+    exit('LifeLink application files were not found. Check the deployment folder layout.');
+}
+
+require $appRoot . '/src/bootstrap.php';
 
 $router = new Router();
 require BASE_PATH . '/routes/web.php';

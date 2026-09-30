@@ -50,8 +50,9 @@ if (existsSync(cssFile)) {
   // Normalise any relative reference to the tabler font files.
   css = css.replace(
     /url\((['"]?)(?:\.?\.?\/)*(?:fonts\/)?(tabler-icons\.(?:woff2?|eot|ttf|svg)[^)'"]*)\1\)/g,
-    'url($1/assets/fonts/$2$1)',
+    'url($1../fonts/$2$1)',
   );
   writeFileSync(cssFile, css);
-  console.log('[copy-vendor-assets] rewrote Tabler font url()s in app.css → /assets/fonts/');
+  // Relative to css/app.css so it works at the domain root AND under a subpath.
+  console.log('[copy-vendor-assets] rewrote Tabler font url()s in app.css → ../fonts/');
 }

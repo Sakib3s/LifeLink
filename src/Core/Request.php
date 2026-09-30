@@ -51,8 +51,17 @@ final class Request
     {
         $uri = $_SERVER['REQUEST_URI'] ?? '/';
         $path = parse_url($uri, PHP_URL_PATH) ?: '/';
+        $path = '/' . trim(rawurldecode($path), '/');
 
-        return '/' . trim(rawurldecode($path), '/');
+        // Strip the deployment subpath (e.g. "/rtm/lifelink") so routes are
+        // always defined and matched relative to the app, not the domain.
+        $base = (string) Config::get('app.base_path', '');
+        if ($base !== '' && ($path === $base || str_starts_with($path, $base . '/'))) {
+            $path = substr($path, strlen($base));
+            $path = $path === '' ? '/' : $path;
+        }
+
+        return $path;
     }
 
     public function isAjax(): bool

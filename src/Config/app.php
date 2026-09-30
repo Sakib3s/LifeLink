@@ -11,6 +11,11 @@ return [
     'url'      => rtrim(Env::get('APP_URL', 'http://localhost'), '/'),
     'timezone' => Env::get('APP_TIMEZONE', 'UTC'),
 
+    // Derived from APP_URL's path component so one setting drives everything.
+    // Empty when the app lives at the domain root (e.g. the DDEV setup);
+    // "/rtm/lifelink" when deployed under a subpath (e.g. Hostinger).
+    'base_path' => rtrim((string) (parse_url(Env::get('APP_URL', 'http://localhost'), PHP_URL_PATH) ?: ''), '/'),
+
     'session' => [
         'name'     => Env::get('SESSION_NAME', 'lifelink_session'),
         'lifetime' => Env::int('SESSION_LIFETIME', 7200),

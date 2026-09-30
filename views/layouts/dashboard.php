@@ -19,7 +19,7 @@ $user         = $user ?? auth();
 $pageTitle    = $pageTitle ?? '';
 $pageSubtitle = $pageSubtitle ?? null;
 $pageActions  = $pageActions ?? '';
-$currentPath  = '/' . trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/', '/');
+$currentPath  = current_path();
 ?>
 <div class="flex min-h-screen bg-gray-50">
     <?= $this->partial('partials/sidebar', ['user' => $user, 'currentPath' => $currentPath]) ?>

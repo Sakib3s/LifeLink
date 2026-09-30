@@ -20,10 +20,15 @@ final class Session
             || (($_SERVER['REQUEST_SCHEME'] ?? '') === 'https')
             || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
 
+        // Scope the cookie to the deployment subpath (if any) so it doesn't
+        // leak to sibling apps sharing the same domain (e.g. other folders
+        // under /rtm/ on a shared host).
+        $basePath = (string) Config::get('app.base_path', '');
+
         session_name((string) Config::get('app.session.name', 'lifelink_session'));
         session_set_cookie_params([
             'lifetime' => (int) Config::get('app.session.lifetime', 7200),
-            'path'     => '/',
+            'path'     => $basePath === '' ? '/' : $basePath . '/',
             'domain'   => '',
             'secure'   => $https,
             'httponly' => true,

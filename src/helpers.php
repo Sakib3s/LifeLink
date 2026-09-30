@@ -34,17 +34,23 @@ if (!function_exists('base_url')) {
 }
 
 if (!function_exists('url')) {
-    /** Root-relative URL, safe for links/redirects within the app. */
+    /**
+     * App-relative URL, prefixed with the deployment base path so links keep
+     * working whether the app lives at the domain root or under a subpath
+     * like /rtm/lifelink (set via APP_URL — see config('app.base_path')).
+     */
     function url(string $path = ''): string
     {
-        return '/' . ltrim($path, '/');
+        $base = (string) config('app.base_path', '');
+
+        return $base . '/' . ltrim($path, '/');
     }
 }
 
 if (!function_exists('asset')) {
     function asset(string $path): string
     {
-        return '/assets/' . ltrim($path, '/');
+        return url('/assets/' . ltrim($path, '/'));
     }
 }
 
@@ -115,13 +121,19 @@ if (!function_exists('icon')) {
     }
 }
 
+if (!function_exists('current_path')) {
+    /** Current request path relative to the app (deployment base path stripped). */
+    function current_path(): string
+    {
+        return (new App\Core\Request())->path();
+    }
+}
+
 if (!function_exists('active_when')) {
     /** Return $class when the current path starts with $prefix (for nav highlighting). */
     function active_when(string $prefix, string $class = 'is-active'): string
     {
-        $path = '/' . trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/', '/');
-
-        return str_starts_with($path, $prefix) ? $class : '';
+        return str_starts_with(current_path(), $prefix) ? $class : '';
     }
 }
 

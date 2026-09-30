@@ -31,8 +31,29 @@ final class Response
     public static function redirect(string $to, int $status = 302): never
     {
         http_response_code($status);
-        header('Location: ' . $to);
+        header('Location: ' . self::qualify($to));
         exit;
+    }
+
+    /**
+     * Prepend the deployment base path to an app-relative target ("/dashboard").
+     * Absolute URLs (http(s):// or protocol-relative //host/...) and already-
+     * qualified targets are left untouched, so this is safe to apply uniformly
+     * — callers everywhere just pass root-relative paths, as if the app lived
+     * at the domain root.
+     */
+    private static function qualify(string $to): string
+    {
+        if ($to === '' || preg_match('#^(https?:)?//#i', $to) === 1) {
+            return $to;
+        }
+
+        $base = (string) Config::get('app.base_path', '');
+        if ($base === '' || str_starts_with($to, $base . '/') || $to === $base) {
+            return $to;
+        }
+
+        return $base . ($to[0] === '/' ? $to : '/' . $to);
     }
 
     public static function noContent(): never

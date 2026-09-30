@@ -24,7 +24,7 @@ $currentPath = $currentPath ?? '/';
             $isActive = $item['href'] === $currentPath
                 || ($item['href'] !== '/dashboard' && $item['href'] !== '/admin' && str_starts_with($currentPath, $item['href']));
             ?>
-            <a href="<?= e($item['href']) ?>"
+            <a href="<?= e(url($item['href'])) ?>"
                class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium <?= $isActive ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' ?>">
                 <span class="<?= $isActive ? 'text-brand-600' : 'text-gray-400' ?>"><?= icon($item['icon']) ?></span>
                 <?= e($item['label']) ?>

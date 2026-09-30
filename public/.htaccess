@@ -1,0 +1,27 @@
+# LifeLink front-controller rewrite (Apache / LiteSpeed — e.g. Hostinger).
+# DDEV's local environment uses nginx and has the equivalent rule in
+# .ddev/nginx_full/nginx-site.conf; this file is what production needs.
+#
+# No RewriteBase is set on purpose: rules use relative substitutions, so this
+# works unchanged whether the app is deployed at the domain root or under a
+# subpath (e.g. https://example.com/rtm/lifelink/) — the folder this file
+# sits in IS the web root either way.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Serve a request directly if it matches a real file or directory
+    # (compiled CSS/JS, fonts, favicon, the request for index.php itself).
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Everything else goes through the front controller, query string intact.
+    RewriteRule ^ index.php [L,QSA]
+</IfModule>
+
+# Defence in depth: block direct access to dotfiles (.env if ever misplaced
+# here, .git, etc.) even though the real .env lives outside the web root.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
