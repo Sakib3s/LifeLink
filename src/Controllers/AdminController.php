@@ -153,8 +153,9 @@ final class AdminController extends Controller
 
         Donor::markVerified((int) $id, (int) $admin['id']);
         AuditLog::record('donor.verify', 'donor', (int) $id, 'email=' . $donor['email']);
-        (new NotificationService())->notify(
+        (new NotificationService())->notifyWithWhatsApp(
             (int) $donor['user_id'],
+            $donor['phone'] ?? null,
             'verification',
             'Your donor profile is verified',
             'You are now active in LifeLink and can be matched to nearby emergency requests.',
@@ -174,8 +175,9 @@ final class AdminController extends Controller
         $reason = trim((string) $this->request->input('reason', ''));
         Donor::clearVerification((int) $id);
         AuditLog::record('donor.reject', 'donor', (int) $id, $reason !== '' ? 'reason=' . $reason : null);
-        (new NotificationService())->notify(
+        (new NotificationService())->notifyWithWhatsApp(
             (int) $donor['user_id'],
+            $donor['phone'] ?? null,
             'verification',
             'Your donor profile needs attention',
             'A LifeLink administrator could not verify your donor profile' .
@@ -195,8 +197,9 @@ final class AdminController extends Controller
 
         BloodBank::markVerified((int) $id, (int) $admin['id']);
         AuditLog::record('bank.verify', 'blood_bank', (int) $id, 'name=' . $bank['bank_name']);
-        (new NotificationService())->notify(
+        (new NotificationService())->notifyWithWhatsApp(
             (int) $bank['user_id'],
+            $bank['phone'] ?? null,
             'verification',
             'Your blood bank is verified',
             'Your blood bank is now active in LifeLink. You can publish inventory and assist requests.',
@@ -216,8 +219,9 @@ final class AdminController extends Controller
         $reason = trim((string) $this->request->input('reason', ''));
         BloodBank::clearVerification((int) $id);
         AuditLog::record('bank.reject', 'blood_bank', (int) $id, $reason !== '' ? 'reason=' . $reason : null);
-        (new NotificationService())->notify(
+        (new NotificationService())->notifyWithWhatsApp(
             (int) $bank['user_id'],
+            $bank['phone'] ?? null,
             'verification',
             'Your blood bank needs attention',
             'A LifeLink administrator could not verify your blood bank' .

@@ -20,7 +20,7 @@ final class BloodBank extends Model
     public static function withUser(int $bankId): ?array
     {
         return Database::first(
-            'SELECT b.*, u.name, u.email, u.phone, u.status AS account_status
+            'SELECT b.*, u.name, u.email, u.phone AS account_phone, u.status AS account_status
                FROM blood_banks b JOIN users u ON u.id = b.user_id
               WHERE b.id = :id LIMIT 1',
             ['id' => $bankId],
@@ -31,7 +31,7 @@ final class BloodBank extends Model
     public static function pendingVerification(): array
     {
         return Database::all(
-            'SELECT b.*, u.name, u.email, u.phone, u.created_at AS registered_at
+            'SELECT b.*, u.name, u.email, u.phone AS account_phone, u.created_at AS registered_at
                FROM blood_banks b JOIN users u ON u.id = b.user_id
               WHERE b.is_verified = 0
               ORDER BY u.created_at ASC',
