@@ -2,6 +2,14 @@
 (function ($) {
   'use strict';
 
+  // Attach the CSRF token (from <meta name="csrf-token">) to every AJAX
+  // write, so $.post()/$.ajax() calls pass CsrfMiddleware without each
+  // caller having to remember to add it.
+  var csrfToken = $('meta[name="csrf-token"]').attr('content');
+  if (csrfToken) {
+    $.ajaxSetup({ headers: { 'X-CSRF-Token': csrfToken } });
+  }
+
   $(function () {
     // Dismissible alerts / flash messages
     $(document).on('click', '[data-dismiss]', function () {

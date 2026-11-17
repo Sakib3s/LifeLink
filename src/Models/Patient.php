@@ -27,4 +27,19 @@ final class Patient extends Model
             'longitude' => $data['longitude'] ?? null,
         ]);
     }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public static function updateProfile(int $patientId, array $data): void
+    {
+        $current = self::find($patientId);
+
+        self::updateById($patientId, [
+            'address'   => $data['address'],
+            'city'      => $data['city'],
+            'latitude'  => $data['latitude'] ?? $current['latitude'] ?? null,
+            'longitude' => $data['longitude'] ?? $current['longitude'] ?? null,
+        ]);
+    }
 }

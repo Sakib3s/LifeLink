@@ -33,6 +33,7 @@ $pageScripts = $pageScripts ?? [];
 
     <script src="<?= asset('js/vendor/jquery.min.js') ?>"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
+    <script src="<?= asset('js/geolocate.js') ?>"></script>
     <?php foreach ($pageScripts as $src): ?>
         <script src="<?= e($src) ?>"></script>
     <?php endforeach; ?>

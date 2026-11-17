@@ -57,6 +57,77 @@ final class Donor extends Model
         self::updateById($donorId, ['availability_status' => $status]);
     }
 
+    /**
+     * Update the donor's own profile. If blood_group/gender/date_of_birth
+     * changes on an already-verified profile, verification is reset — those
+     * fields are safety-critical and must be re-checked by an admin.
+     *
+     * @param array<string, mixed> $data
+     */
+    public static function updateProfile(int $donorId, array $data): void
+    {
+        $current = self::find($donorId);
+        if ($current === null) {
+            return;
+        }
+
+        $sensitiveChanged = (string) $current['blood_group'] !== (string) $data['blood_group']
+            || (string) $current['gender'] !== (string) $data['gender']
+            || (string) $current['date_of_birth'] !== (string) $data['date_of_birth'];
+
+        $update = [
+            'blood_group'   => $data['blood_group'],
+            'gender'        => $data['gender'],
+            'date_of_birth' => $data['date_of_birth'],
+            'weight_kg'     => $data['weight_kg'] ?? null,
+            'address'       => $data['address'],
+            'city'          => $data['city'],
+            'latitude'      => $data['latitude'] ?? $current['latitude'],
+            'longitude'     => $data['longitude'] ?? $current['longitude'],
+        ];
+
+        if ($sensitiveChanged && (int) $current['is_verified'] === 1) {
+            $update['is_verified'] = 0;
+            $update['verified_by'] = null;
+            $update['verified_at'] = null;
+        }
+
+        self::updateById($donorId, $update);
+    }
+
+    /**
+     * Donors eligible to be matched for one of the given (donor-side) blood
+     * groups: available, admin-verified, and their account is active.
+     * Distance ranking and radius filtering happen in MatchingService.
+     *
+     * @param array<int, string> $bloodGroups
+     * @return array<int, array<string, mixed>>
+     */
+    public static function compatibleAvailable(array $bloodGroups): array
+    {
+        if ($bloodGroups === []) {
+            return [];
+        }
+
+        $placeholders = [];
+        $params = [];
+        foreach (array_values($bloodGroups) as $i => $group) {
+            $key = "bg{$i}";
+            $placeholders[] = ":{$key}";
+            $params[$key] = $group;
+        }
+
+        return Database::all(
+            'SELECT d.*, u.name, u.email, u.phone
+               FROM donors d JOIN users u ON u.id = d.user_id
+              WHERE d.blood_group IN (' . implode(',', $placeholders) . ")
+                AND d.availability_status = 'available'
+                AND d.is_verified = 1
+                AND u.status = 'active'",
+            $params,
+        );
+    }
+
     // ── Verification (admin) ─────────────────────────────────────
 
     /** @return array<int, array<string, mixed>> unverified donors + their user account */

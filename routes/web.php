@@ -11,7 +11,10 @@ declare(strict_types=1);
 use App\Controllers\AdminController;
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
+use App\Controllers\DonorController;
+use App\Controllers\MatchController;
 use App\Controllers\PageController;
+use App\Controllers\PatientController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\CsrfMiddleware;
 use App\Middleware\GuestMiddleware;
@@ -65,4 +68,39 @@ $router->group([
 
     $r->get('/reports', [AdminController::class, 'reports']);
     $r->get('/reports/export', [AdminController::class, 'exportReport']);
+});
+
+// ── Donor ───────────────────────────────────────────────────────
+$router->group([
+    'prefix'     => '/donor',
+    'middleware' => [AuthMiddleware::class, CsrfMiddleware::class, RoleMiddleware::class . ':donor'],
+], function (App\Core\Router $r): void {
+    $r->get('/profile', [DonorController::class, 'profile']);
+    $r->post('/profile', [DonorController::class, 'updateProfile']);
+    $r->post('/availability', [DonorController::class, 'toggleAvailability']);
+
+    $r->get('/donations', [DonorController::class, 'donations']);
+
+    $r->get('/eligibility', [DonorController::class, 'eligibility']);
+    $r->post('/eligibility', [DonorController::class, 'runEligibility']);
+
+    $r->get('/matches', [DonorController::class, 'matches']);
+    $r->post('/matches/{id}/accept', [MatchController::class, 'accept']);
+    $r->post('/matches/{id}/decline', [MatchController::class, 'decline']);
+});
+
+// ── Patient ─────────────────────────────────────────────────────
+$router->group([
+    'prefix'     => '/patient',
+    'middleware' => [AuthMiddleware::class, CsrfMiddleware::class, RoleMiddleware::class . ':patient'],
+], function (App\Core\Router $r): void {
+    $r->get('/profile', [PatientController::class, 'profile']);
+    $r->post('/profile', [PatientController::class, 'updateProfile']);
+
+    $r->get('/requests', [PatientController::class, 'requestsIndex']);
+    $r->get('/requests/new', [PatientController::class, 'requestsCreate']);
+    $r->post('/requests', [PatientController::class, 'requestsStore']);
+    $r->get('/requests/{id}', [PatientController::class, 'requestsShow']);
+    $r->post('/requests/{id}/cancel', [PatientController::class, 'requestsCancel']);
+    $r->post('/requests/{id}/fulfill', [PatientController::class, 'requestsFulfill']);
 });
