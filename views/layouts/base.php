@@ -17,6 +17,7 @@ $pageScripts = $pageScripts ?? [];
     <meta name="color-scheme" content="light">
     <meta name="app-base" content="<?= e(config('app.base_path', '')) ?>">
     <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
+    <meta name="base-url" content="<?= e(rtrim(url('/'), '/')) ?>">
     <title><?= e($title) ?></title>
     <meta name="description" content="LifeLink connects blood donors with patients and blood banks during emergencies.">
 

@@ -13,6 +13,7 @@ use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\DonorController;
 use App\Controllers\MatchController;
+use App\Controllers\NotificationController;
 use App\Controllers\PageController;
 use App\Controllers\PatientController;
 use App\Middleware\AuthMiddleware;
@@ -40,6 +41,11 @@ $router->group(['middleware' => [AuthMiddleware::class, CsrfMiddleware::class]],
     $r->post('/logout', [AuthController::class, 'logout']);
 
     $r->get('/dashboard', [DashboardController::class, 'index']);
+
+    $r->get('/notifications', [NotificationController::class, 'index']);
+    $r->get('/notifications/recent', [NotificationController::class, 'recent']);
+    $r->post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+    $r->post('/notifications/{id}/read', [NotificationController::class, 'markRead']);
 });
 
 // ── Admin console ───────────────────────────────────────────────

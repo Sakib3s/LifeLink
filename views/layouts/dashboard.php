@@ -20,12 +20,13 @@ $pageTitle    = $pageTitle ?? '';
 $pageSubtitle = $pageSubtitle ?? null;
 $pageActions  = $pageActions ?? '';
 $currentPath  = current_path();
+$unreadCount  = $unreadCount ?? (isset($user['id']) ? \App\Models\Notification::unreadCount((int) $user['id']) : 0);
 ?>
 <div class="flex min-h-screen bg-gray-50">
     <?= $this->partial('partials/sidebar', ['user' => $user, 'currentPath' => $currentPath]) ?>
 
     <div class="flex min-w-0 flex-1 flex-col">
-        <?= $this->partial('partials/navbar', ['user' => $user, 'unreadCount' => $unreadCount ?? 0]) ?>
+        <?= $this->partial('partials/navbar', ['user' => $user, 'unreadCount' => $unreadCount]) ?>
 
         <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
             <div class="mx-auto w-full max-w-6xl">

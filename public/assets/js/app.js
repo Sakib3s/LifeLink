@@ -55,5 +55,44 @@
     $(document).on('click', '[data-dropdown]', function (e) {
       e.stopPropagation();
     });
+
+    // Notification bell: load the list when opened, mark-all-read, poll the count.
+    var $bell = $('[data-notifications]');
+    if ($bell.length) {
+      var $count = $bell.find('[data-notif-count]');
+      var $list = $bell.find('[data-notif-list]');
+      var baseUrl = $('meta[name="base-url"]').attr('content') || '';
+      var esc = function (t) { return $('<div>').text(t).html(); };
+      var setCount = function (n) {
+        $count.text(n).toggleClass('hidden', !n);
+      };
+      var load = function () {
+        $.getJSON(baseUrl + '/notifications/recent', function (res) {
+          setCount(res.unread);
+          if (!res.items.length) {
+            $list.html('<li class="px-4 py-6 text-center text-gray-500">No notifications yet</li>');
+            return;
+          }
+          $list.html($.map(res.items, function (n) {
+            return '<li class="px-4 py-3' + (n.is_read ? '' : ' bg-brand-50') + '">' +
+              '<p class="font-medium text-gray-900">' + esc(n.title) + '</p>' +
+              '<p class="text-gray-600">' + esc(n.message) + '</p>' +
+              '<p class="mt-1 text-xs text-gray-400">' + esc(n.time) + '</p></li>';
+          }).join(''));
+        }).fail(function () {
+          $list.html('<li class="px-4 py-6 text-center text-gray-500">Could not load notifications</li>');
+        });
+      };
+      $bell.on('click', '[data-dropdown-toggle]', load);
+      $bell.on('click', '[data-notif-mark-all]', function () {
+        $.post(baseUrl + '/notifications/read-all', function (res) {
+          setCount(res.unread);
+          load();
+        }, 'json');
+      });
+      window.setInterval(function () {
+        $.getJSON(baseUrl + '/notifications/recent', function (res) { setCount(res.unread); });
+      }, 60000);
+    }
   });
 })(jQuery);
